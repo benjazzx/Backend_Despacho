@@ -52,11 +52,7 @@ services:
       - backend_network
 
   frontend:
-    build:
-      context: ./front_despacho
-      args:
-        VITE_VENTAS_URL: ${VITE_VENTAS_URL:-http://localhost:8080}
-        VITE_DESPACHOS_URL: ${VITE_DESPACHOS_URL:-http://localhost:8081}
+    image: ${DOCKERHUB_USERNAME}/frontend-despacho:latest
     ports:
       - "80:8080"
     networks:
