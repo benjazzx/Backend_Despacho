@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"C:/Users/pc nuevbvo/Desktop/ISY1101_EP2_Proyecto Semestral/proyecto semestral/back-Ventas_SpringBoot\" status)",
+      "Bash(git -C \"C:/Users/pc nuevbvo/Desktop/ISY1101_EP2_Proyecto Semestral/proyecto semestral/back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO\" status)",
+      "Bash(git clone *)",
+      "Bash(git commit *)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\pc nuevbvo\\Desktop\\ISY1101_EP2_Proyecto Semestral\\Backend_Despacho_repo",
+      "C:\\Users\\pc nuevbvo\\Desktop\\ISY1101_EP2_Proyecto Semestral\\proyecto semestral\\back-Despachos_SpringBoot\\Springboot-API-REST-DESPACHO",
+      "C:\\Users\\pc nuevbvo\\Desktop\\ISY1101_EP2_Proyecto Semestral\\proyecto semestral"
+    ]
+  }
+}

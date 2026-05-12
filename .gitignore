@@ -1,0 +1,4 @@
+.env
+front_despacho/
+**/target/
+**/.DS_Store
