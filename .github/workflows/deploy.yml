@@ -36,7 +36,7 @@ jobs:
           proxy_username: ${{ secrets.EC2_USER }}
           proxy_key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/back-despachos:latest || true
             docker stop back-despachos || true
             docker rm back-despachos || true
             docker run -d \
