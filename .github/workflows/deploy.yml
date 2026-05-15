@@ -41,6 +41,7 @@ jobs:
             docker rm back-despachos || true
             docker run -d \
               --name back-despachos \
+              --restart unless-stopped \
               -p 8081:8081 \
               -e DB_ENDPOINT=${{ secrets.DB_ENDPOINT }} \
               -e DB_PORT=3306 \
