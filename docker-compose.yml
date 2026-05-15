@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-despachos
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_NAME:-despachos_db}
+      MYSQL_USER: ${DB_USERNAME:-innovatech}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-innovatech_password}
+    ports:
+      - "3307:3306"
+    volumes:
+      - despachos_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  back-despachos:
+    build:
+      context: ./Springboot-API-REST-DESPACHO
+    container_name: back-despachos
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      DB_ENDPOINT: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-despachos_db}
+      DB_USERNAME: ${DB_USERNAME:-innovatech}
+      DB_PASSWORD: ${DB_PASSWORD:-innovatech_password}
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  despachos_mysql_data:
+    driver: local
