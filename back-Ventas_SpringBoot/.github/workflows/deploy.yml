@@ -1,0 +1,68 @@
+name: CI/CD - Back Ventas
+on:
+  push:
+    branches: [deploy]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: back-ventas
+  ECS_CLUSTER: innovatech-ecs-cluster
+  ECS_SERVICE: back-ventas-svc
+
+jobs:
+  build-and-deploy:
+    name: Build, Push y Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login a Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build imagen Docker
+        run: |
+          docker build -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }} \
+                       -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest \
+                       ./Springboot-API-REST
+
+      - name: Push imagen a ECR
+        run: |
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+          docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+
+      - name: Deploy a ECS Fargate
+        run: |
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_SERVICE }} \
+            --force-new-deployment \
+            --region ${{ env.AWS_REGION }}
+          echo "Deploy iniciado correctamente"
+
+      - name: Verificar deploy exitoso
+        run: |
+          echo "Verificando estado del deploy..."
+          sleep 30
+          ROLLOUT=$(aws ecs describe-services \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services ${{ env.ECS_SERVICE }} \
+            --region ${{ env.AWS_REGION }} \
+            --query "services[0].deployments[0].rolloutState" \
+            --output text)
+          echo "Estado del rollout: $ROLLOUT"
+          if [ "$ROLLOUT" = "COMPLETED" ] || [ "$ROLLOUT" = "IN_PROGRESS" ]; then
+            echo "Deploy exitoso en ECS Fargate"
+          else
+            echo "Deploy en estado: $ROLLOUT"
+            exit 1
+          fi
